@@ -1,8 +1,11 @@
-use(hospital_appointment_20118715);
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
 // 3.0 Database
+use("hospital_appointment_20118715");
 
 // 3.1 Collections
+// Patient collection
 db.createCollection("patient", {
     validator: {
         $jsonSchema: {
@@ -30,6 +33,7 @@ db.createCollection("patient", {
     }
 })
 
+// Doctor collection
 db.createCollection("doctor", {
     validator: {
         $jsonSchema: {
@@ -54,24 +58,28 @@ db.createCollection("doctor", {
     }
 })
 
+// Appointment collection
 db.createCollection("appointment", {
     validator: {
         $jsonSchema: {
             bsonType: "object",
             title: "Appointment Object Validation",
-            required: ["appointment_id", "name", "date_of_birth", "phone_number"],
+            required: ["appointment_id", "date", "time", "status", "patient_id"],
             properties: {
                 appointment_id: { bsonType: "int" },
                 date: { bsonType: "date" },
                 time: { bsonType: "string" },
-                status: { bsonType: "object" },
-                reason_for_visit: { bsonType: "object" },
+                status: { bsonType: "string" },
+                reason_for_visit: { bsonType: "string" },
                 notes: { bsonType: "string" },
-                doctors: { 
-                    bsonType: "array", 
+                doctors: {
+                    bsonType: "array",
                     items: {
-                        bsonType: "object"
-                        
+                        bsonType: "object",
+                        properties: {
+                            doctor_id: { bsonType: "int" },
+                            roles: { bsonType: "string" }
+                        }
                     }
                 },
                 patient_id: { bsonType: "int" }
@@ -81,7 +89,6 @@ db.createCollection("appointment", {
 })
 
 // 3.2 Documents
-
 // Patient document
 db.patient.insertOne(
     {
@@ -127,5 +134,37 @@ db.appointment.insertOne(
 )
 
 // 3.3 Find Queries
+// Find all appointments involving a specific doctor, sorted by date
+db.appointment.find(
+    { "doctors": { $elemMatch: { "doctor_id": 564 } } }
+).sort({ date: 1 })
+
+// Find all appointments for a specific doctor within a date range
+db.appointment.find(
+    {
+        "doctors": { $elemMatch: { "doctor_id": 564 } },
+        "date": { $gte: ISODate("2024-12-16"), $lte: ISODate("2025-04-10") }
+    }
+)
+
+// Find appointments with status "cancelled" or "scheduled", with projection
+db.appointment.find(
+    { "status": { $in: ["cancelled", "scheduled"] } },
+    { "date": 1, "time": 1, "doctors": 1, "patient_id": 1 }
+)
+
+// Find appointments for a specific patient by patient_id, limit to 5 results
+db.appointment.find(
+    { "patient_id": 101 }
+).limit(5)
+
+// Find appointments for a specific patient with a particular doctor, with projection
+db.appointment.find(
+    {
+        "patient_id": 101,
+        "doctors": { $elemMatch: { "doctor_id": 564 } }
+    },
+    { "date": 1, "time": 1, "doctors": 1, "patient_id": 1 }
+)
 
 // 3.4 Aggregations
