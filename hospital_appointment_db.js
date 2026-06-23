@@ -2,7 +2,7 @@
 // Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
 // 3.0 Database
-use("hospital_appointment_20118715");
+use("hospital_appointment_db");
 
 // 3.1 Collections
 // Patient collection
