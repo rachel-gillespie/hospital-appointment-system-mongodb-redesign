@@ -66,3 +66,11 @@ load("hospital_appointment_db.js")
 ## Aggregations Included
 - Total appointments per doctor (using `$unwind`, `$group`, `$sort`)
 - Scheduled appointment details joined with patient contact information (using `$match`, `$lookup`, `$project`)
+
+## Reflection
+
+### Architecture Choices
+- **Doctor and Patient store appointments by reference, not embedding.** A doctor or patient could accumulate hundreds of appointments over their career. Embedding a continuously growing array inside a document is poor practice in MongoDB — this is known as the unbounded array problem. Appointments are therefore their own collection, with references back to the relevant patient.
+- **Multi-value fields modelled as nested objects, not arrays.** Email addresses and phone numbers are stored as nested objects (e.g. `{ "home": "...", "work": "..." }`) rather than arrays of strings, because the keys carry meaningful information — distinguishing a mobile from a landline, or a home email from a work email. An array would lose that distinction.
+- **`InvolvedIn` embedded inside Appointment, not a separate collection.** Doctor involvement is specific to each individual appointment, is unlikely to change after the appointment is recorded, and is almost always accessed in the context of the appointment itself. Embedding it as an array of subdocuments (`doctors: [{ doctor_id, roles }]`) was therefore more appropriate than creating a separate collection.
+- **Patient stored as a reference in Appointment, not embedded.** Patient information is managed independently and may be updated without any relation to their appointment history. Embedding patient details inside each appointment would create duplicated, potentially stale data across many documents.
