@@ -32,7 +32,7 @@ The most complex collection. Stores a reference to the associated patient via `p
 ## Files
 | File | Description |
 |---|---|
-| `rachelgillespie_ca2.js` | Full implementation — collection creation with JSON schemas, sample documents, find queries, and aggregation pipelines |
+| `hospital_appointment_db.js` | Full implementation — collection creation with JSON schemas, sample documents, find queries, and aggregation pipelines |
 
 ## Setup Instructions
 
@@ -53,7 +53,7 @@ cd hospital-appointment-system-mongodb-redesign
 3. Load the script:
 ```js
 use('hospital_appointment_db')
-load("rachelgillespie_ca2.js")
+load("hospital_appointment_db.js")
 ```
 
 ## Queries Included
